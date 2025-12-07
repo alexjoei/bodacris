@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cristina & Alberto - Nuestra Boda</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root {
+            --primary: #d4af7a;
+            --primary-dark: #b89965;
+            --secondary: #2d3e4e;
+            --accent: #e8d5c4;
+            --light: #f9f7f4;
+            --dark: #1a1a1a;
+            --rose: #d4a5a5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--dark);
+            background: var(--light);
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(249, 247, 244, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 1.5rem 0;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+            transform: translateY(-100%);
+            animation: slideDown 0.8s ease forwards 0.5s;
+        }
+
+        @keyframes slideDown {
+            to { transform: translateY(0); }
+        }
+
+        nav ul {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            list-style: none;
+            flex-wrap: wrap;
+            padding: 0 2rem;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--secondary);
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-weight: 500;
+            position: relative;
+            transition: color 0.3s;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--primary-dark);
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f9f7f4 0%, #e8d5c4 100%);
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(circle, rgba(212, 175, 122, 0.1) 0%, transparent 70%);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(50px, 50px) rotate(180deg); }
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 1;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards 0.8s;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+        }
+
+        .hero-names {
+            font-size: clamp(3.5rem, 10vw, 8rem);
+            font-weight: 300;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            line-height: 1;
+        }
+
+        .hero-ampersand {
+            font-size: clamp(2rem, 6vw, 4rem);
+            color: var(--primary);
+            font-style: italic;
+            margin: 0 1rem;
+        }
+
+        .hero-date {
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            color: var(--primary-dark);
+            margin: 2rem 0;
+            letter-spacing: 3px;
+            font-weight: 400;
+        }
+
+        .hero-location {
+            font-size: 1.1rem;
+            color: var(--secondary);
+            opacity: 0.8;
+            letter-spacing: 1px;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 3rem;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-10px); }
+        }
+
+        .scroll-indicator::after {
+            content: '↓';
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        /* Section Styling */
+        section {
+            padding: 8rem 2rem;
+            position: relative;
+        }
+
+        section:nth-child(even) {
+            background: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--secondary);
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: var(--primary);
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--secondary);
+            opacity: 0.7;
+            margin-bottom: 4rem;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+
+        /* Invitation Section */
+        .invitation {
+            background: linear-gradient(to bottom, white 0%, var(--light) 100%);
+        }
+
+        .invitation-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            margin-top: 3rem;
+        }
+
+        .invitation-image {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 20px 20px 60px rgba(0, 0, 0, 0.1);
+        }
+
+        .invitation-image img {
+            width: 100%;
+            height: 600px;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .invitation-image:hover img {
+            transform: scale(1.05);
+        }
+
+        .invitation-text {
+            padding: 2rem;
+        }
+
+        .invitation-text h3 {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: var(--primary-dark);
+        }
+
+        .invitation-text p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .event-details {
+            background: var(--accent);
+            padding: 2rem;
+            border-radius: 10px;
+            margin-top: 2rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .event-detail-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        .event-detail-item strong {
+            min-width: 100px;
+            color: var(--primary-dark);
+        }
+
+        /* Location Section */
+        .location {
+            background: white;
+        }
+
+        #map {
+            height: 500px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 3rem;
+        }
+
+        .hotels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .hotel-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid #f0f0f0;
+        }
+
+        .hotel-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .hotel-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .hotel-info {
+            padding: 1.5rem;
+        }
+
+        .hotel-name {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: var(--secondary);
+        }
+
+        .hotel-price {
+            color: var(--primary);
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .hotel-distance {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .hotel-link {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .hotel-link:hover {
+            background: var(--primary-dark);
+        }
+
+        .booking-link {
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .booking-btn {
+            display: inline-block;
+            padding: 1.2rem 3rem;
+            background: var(--secondary);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            box-shadow: 0 5px 25px rgba(45, 62, 78, 0.3);
+        }
+
+        .booking-btn:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(212, 175, 122, 0.4);
+        }
+
+        /* RSVP Section */
+        .rsvp {
+            background: linear-gradient(135deg, var(--light) 0%, white 100%);
+        }
+
+        .rsvp-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .form-embed {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.1);
+            min-height: 600px;
+        }
+
+        .form-placeholder {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .form-placeholder h3 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary-dark);
+        }
+
+        .form-placeholder p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--secondary);
+            margin-bottom: 2rem;
+        }
+
+        .form-placeholder ol {
+            text-align: left;
+            max-width: 600px;
+            margin: 2rem auto;
+            padding-left: 2rem;
+            line-height: 1.8;
+        }
+
+        .form-placeholder code {
+            background: var(--accent);
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.9rem;
+        }
+
+        /* Photos Section */
+        .photos {
+            background: white;
+        }
+
+        .photos-info {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 3rem;
+        }
+
+        .photos-info p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--secondary);
+            margin-bottom: 2rem;
+        }
+
+        .upload-section {
+            background: var(--light);
+            padding: 3rem;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px dashed var(--primary);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .upload-section h3 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary-dark);
+        }
+
+        .upload-instructions {
+            margin: 2rem auto;
+            max-width: 600px;
+            text-align: left;
+            line-height: 1.8;
+        }
+
+        .upload-instructions ol {
+            padding-left: 2rem;
+        }
+
+        .drive-link {
+            display: inline-block;
+            margin-top: 2rem;
+            padding: 1.2rem 3rem;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            box-shadow: 0 5px 25px rgba(212, 175, 122, 0.3);
+        }
+
+        .drive-link:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(212, 175, 122, 0.4);
+        }
+
+        /* Music Section */
+        .music {
+            background: linear-gradient(135deg, var(--secondary) 0%, #1a2530 100%);
+            color: white;
+        }
+
+        .music .section-title,
+        .music .section-subtitle {
+            color: white;
+        }
+
+        .music .section-title::after {
+            background: var(--primary);
+        }
+
+        .spotify-section {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 3rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .spotify-icon {
+            text-align: center;
+            font-size: 5rem;
+            margin-bottom: 2rem;
+            color: #1DB954;
+        }
+
+        .spotify-section h3 {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .spotify-section p {
+            text-align: center;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .music-form {
+            max-width: 600px;
+            margin: 2rem auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1.2rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 25px rgba(212, 175, 122, 0.3);
+        }
+
+        .submit-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(212, 175, 122, 0.4);
+        }
+
+        .songs-list {
+            margin-top: 3rem;
+            max-height: 400px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 2rem;
+            border-radius: 10px;
+        }
+
+        .song-item {
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 3px solid var(--primary);
+        }
+
+        .song-info h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .song-info p {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin: 0;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+
+        .footer-names {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        .footer-date {
+            font-size: 1.2rem;
+            color: var(--primary);
+            letter-spacing: 2px;
+        }
+
+        .footer-heart {
+            font-size: 1.5rem;
+            color: var(--rose);
+            margin: 1rem 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            .invitation-content {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-names {
+                font-size: 3rem;
+            }
+
+            nav ul {
+                gap: 1.5rem;
+            }
+
+            section {
+                padding: 5rem 1.5rem;
+            }
+        }
+
+        /* Smooth Scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Loading Animation */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s, transform 0.8s;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <ul>
+            <li><a href="#inicio">Inicio</a></li>
+            <li><a href="#invitacion">Invitación</a></li>
+            <li><a href="#localizacion">Localización</a></li>
+            <li><a href="#asistencia">Asistencia</a></li>
+            <li><a href="#fotos">Fotos</a></li>
+            <li><a href="#musica">Música</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="inicio" class="hero">
+        <div class="hero-content">
+            <h1 class="hero-names">
+                Cristina <span class="hero-ampersand">&</span> Alberto
+            </h1>
+            <p class="hero-date">24 DE JULIO, 2026</p>
+            <p class="hero-location">Nos casamos y queremos celebrarlo contigo</p>
+        </div>
+        <div class="scroll-indicator"></div>
+    </section>
+
+    <!-- Invitation Section -->
+    <section id="invitacion" class="invitation">
+        <div class="container">
+            <h2 class="section-title">Nuestra Invitación</h2>
+            <p class="section-subtitle">Con mucha ilusión os invitamos a celebrar nuestro día especial</p>
+            
+            <div class="invitation-content fade-in">
+                <div class="invitation-image">
+                    <img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800&h=1000&fit=crop" alt="Cristina y Alberto">
+                </div>
+                <div class="invitation-text">
+                    <h3>¡Nos casamos!</h3>
+                    <p>¡Nos casamos! Queremos compartir unas palabras con todos vosotros en este día tan especial.</p>
+                    <p>Después de la ceremonia, habrá cena, copas y baile. Será una celebración llena de amor, alegría y buenos momentos que esperamos disfrutar junto a nuestros seres queridos.</p>
+                    
+                    <div class="event-details">
+                        <div class="event-detail-item">
+                            <strong>📅 Fecha:</strong>
+                            <span>Viernes, 24 de Julio de 2026</span>
+                        </div>
+                        <div class="event-detail-item">
+                            <strong>🕐 Hora:</strong>
+                            <span>19:00h (ceremonia y celebración)</span>
+                        </div>
+                        <div class="event-detail-item">
+                            <strong>📍 Lugar:</strong>
+                            <span>Quinta del Alba, Cubas de la Sagra</span>
+                        </div>
+                        <div class="event-detail-item">
+                            <strong>👗 Dress code:</strong>
+                            <span>Venid guapetones</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Location Section -->
+    <section id="localizacion" class="location">
+        <div class="container">
+            <h2 class="section-title">Localización</h2>
+            <p class="section-subtitle">Todo lo que necesitas saber sobre dónde nos casamos</p>
+            
+            <div class="fade-in">
+                <div id="map"></div>
+                
+                <h3 style="text-align: center; font-size: 2rem; margin: 3rem 0 1rem; color: var(--secondary);">
+                    Hoteles Recomendados
+                </h3>
+                <p style="text-align: center; color: var(--secondary); opacity: 0.7; margin-bottom: 2rem;">
+                    Hemos seleccionado estos hoteles por su cercanía al lugar de la celebración
+                </p>
+                
+                <div class="hotels-grid">
+                    <div class="hotel-card">
+                        <img class="hotel-image" src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop" alt="Hotel">
+                        <div class="hotel-info">
+                            <h3 class="hotel-name">Hotel Villa Real</h3>
+                            <p class="hotel-price">Desde 120€/noche</p>
+                            <p class="hotel-distance">📍 5 km del lugar</p>
+                            <a href="https://www.booking.com" target="_blank" class="hotel-link">Reservar</a>
+                        </div>
+                    </div>
+                    
+                    <div class="hotel-card">
+                        <img class="hotel-image" src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=400&h=300&fit=crop" alt="Hotel">
+                        <div class="hotel-info">
+                            <h3 class="hotel-name">Palacio de los Olivos</h3>
+                            <p class="hotel-price">Desde 95€/noche</p>
+                            <p class="hotel-distance">📍 7 km del lugar</p>
+                            <a href="https://www.booking.com" target="_blank" class="hotel-link">Reservar</a>
+                        </div>
+                    </div>
+                    
+                    <div class="hotel-card">
+                        <img class="hotel-image" src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400&h=300&fit=crop" alt="Hotel">
+                        <div class="hotel-info">
+                            <h3 class="hotel-name">Hostal La Primavera</h3>
+                            <p class="hotel-price">Desde 65€/noche</p>
+                            <p class="hotel-distance">📍 6 km del lugar</p>
+                            <a href="https://www.booking.com" target="_blank" class="hotel-link">Reservar</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="booking-link">
+                    <a href="https://www.booking.com" target="_blank" class="booking-btn">
+                        Ver Más Hoteles en Booking.com
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- RSVP Section -->
+    <section id="asistencia" class="rsvp">
+        <div class="container">
+            <h2 class="section-title">Confirma tu Asistencia</h2>
+            <p class="section-subtitle">Por favor, indícanos si podrás acompañarnos</p>
+            
+            <div class="rsvp-container fade-in">
+                <div class="form-embed">
+                    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSc2cy309EYE6HHwnjTAYPwYBI7MIY7PRz-9NPxC4eXNkmU4hQ/viewform?embedded=true" width="640" height="1158" frameborder="0" marginheight="0" marginwidth="0">Cargando…</iframe>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Photos Section -->
+    <section id="fotos" class="photos">
+        <div class="container">
+            <h2 class="section-title">Comparte tus Fotos</h2>
+            <p class="section-subtitle">Queremos ver la boda desde tu perspectiva</p>
+            
+            <div class="photos-info fade-in">
+                <p>El día de la boda, nos encantaría que compartieras con nosotros tus momentos favoritos. ¡Cada foto es un recuerdo especial!</p>
+            </div>
+            
+            <div class="upload-section fade-in">
+                <div class="upload-icon">📸</div>
+                <h3>Sube tus Fotos</h3>
+                <a href="https://drive.google.com/drive/folders/1xM7hqMWeDcW0iuHcg2K6pqjj_Z5hp9Vj?usp=drive_link" target="_blank" class="drive-link">
+                    📤 Subir Fotos a Google Drive
+                </a>
+                <p style="margin-top: 1.5rem; font-size: 0.9rem; opacity: 0.7;">
+                    También puedes etiquetarnos en Instagram: <strong>@cristina.g90</strong>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Music Section -->
+    <section id="musica" class="music">
+        <div class="container">
+            <h2 class="section-title">Nuestra Playlist</h2>
+            <p class="section-subtitle">Ayúdanos a crear la banda sonora perfecta</p>
+            
+            <div class="spotify-section fade-in">
+                <div class="spotify-icon">🎵</div>
+                <h3>Sugiere una Canción</h3>
+                <p>¿Tienes una canción que no puede faltar en nuestra celebración? ¡Compártela con nosotros!</p>
+                
+                <form class="music-form" id="musicForm">
+                    <div class="form-group">
+                        <label for="songName">Nombre de la Canción *</label>
+                        <input type="text" id="songName" name="songName" placeholder="Ej: Perfect - Ed Sheeran" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="guestName">Tu Nombre *</label>
+                        <input type="text" id="guestName" name="guestName" placeholder="¿Quién sugiere esta canción?" required>
+                    </div>
+                    <button type="submit" class="submit-btn">Añadir Canción</button>
+                </form>
+                
+                <div class="songs-list" id="songsList">
+                    <div class="song-item">
+                        <div class="song-info">
+                            <h4>Perfect - Ed Sheeran</h4>
+                            <p>Sugerida por: Los Novios</p>
+                        </div>
+                    </div>
+                    <div class="song-item">
+                        <div class="song-info">
+                            <h4>Marry You - Bruno Mars</h4>
+                            <p>Sugerida por: Los Novios</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-names">Cristina & Alberto</div>
+        <div class="footer-heart">♥</div>
+        <div class="footer-date">24.07.2026</div>
+        <p style="margin-top: 2rem; opacity: 0.7; font-size: 0.9rem;">
+            ¡Nos vemos pronto!
+        </p>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Intersection Observer for fade-in animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Initialize map
+        // Coordenadas de Quinta del Alba, Cubas de la Sagra
+        const weddingLocation = [40.1914, -3.8253]; // Cubas de la Sagra, Madrid
+        
+        const map = L.map('map').setView(weddingLocation, 13);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        
+        // Marker personalizado para el lugar de la boda
+        const weddingIcon = L.divIcon({
+            className: 'custom-icon',
+            html: '<div style="background: #d4af7a; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; border: 3px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.3);">💍</div>',
+            iconSize: [40, 40]
+        });
+        
+        L.marker(weddingLocation, {icon: weddingIcon})
+            .addTo(map)
+            .bindPopup('<b>Quinta del Alba</b><br>Cubas de la Sagra<br>Aquí nos casamos ❤️')
+            .openPopup();
+
+        // Hoteles cercanos
+        const hotelIcon = L.divIcon({
+            className: 'hotel-icon',
+            html: '<div style="background: #2d3e4e; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">🏨</div>',
+            iconSize: [30, 30]
+        });
+
+        const hotels = [
+            {
+                name: 'Hotel La Era',
+                coords: [40.1920, -3.8280],
+                distance: '1 km',
+                info: 'Casa rural en Cubas de la Sagra'
+            },
+            {
+                name: 'Eurostars Arenas de Pinto',
+                coords: [40.2394, -3.7086],
+                distance: '11 km',
+                info: 'Hotel moderno con parking'
+            },
+            {
+                name: 'Holiday Inn Express Madrid Leganés',
+                coords: [40.3272, -3.7634],
+                distance: '18 km',
+                info: 'Hotel con desayuno incluido'
+            },
+            {
+                name: 'B&B Hotel Madrid Fuenlabrada',
+                coords: [40.2843, -3.7941],
+                distance: '13 km',
+                info: 'Económico, cerca del metro'
+            },
+            {
+                name: 'Vértice Roomspace Madrid',
+                coords: [40.3506, -3.6980],
+                distance: '22 km',
+                info: 'En el centro de Madrid'
+            },
+            {
+                name: 'Hotel Route 42',
+                coords: [40.2050, -3.8100],
+                distance: '3 km',
+                info: 'Cerca de Cubas con parking'
+            }
+        ];
+
+        hotels.forEach(hotel => {
+            L.marker(hotel.coords, {icon: hotelIcon})
+                .addTo(map)
+                .bindPopup(`<b>${hotel.name}</b><br>${hotel.info}<br><small>📍 ${hotel.distance} del lugar</small>`);
+        });
+
+        // Music form handler
+        const musicForm = document.getElementById('musicForm');
+        const songsList = document.getElementById('songsList');
+
+        musicForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const songName = document.getElementById('songName').value;
+            const guestName = document.getElementById('guestName').value;
+            
+            const songItem = document.createElement('div');
+            songItem.className = 'song-item';
+            songItem.innerHTML = `
+                <div class="song-info">
+                    <h4>${songName}</h4>
+                    <p>Sugerida por: ${guestName}</p>
+                </div>
+            `;
+            
+            songsList.insertBefore(songItem, songsList.firstChild);
+            
+            // Reset form
+            musicForm.reset();
+            
+            // Show success message (opcional)
+            alert('¡Canción añadida! Gracias por tu sugerencia 🎵');
+            
+            // Aquí podrías enviar los datos a una base de datos o Google Sheets
+            // usando Google Apps Script o una API
+        });
+
+        // Smooth scroll for navigation
+        document.querySelectorAll('nav a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                const navHeight = document.querySelector('nav').offsetHeight;
+                const targetPosition = targetSection.offsetTop - navHeight;
+                
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
