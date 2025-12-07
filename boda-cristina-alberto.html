@@ -891,6 +891,18 @@
                     <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSc3AbGqq9QCL5xPhOrxGrOyKWlN6LlmJxt7zcK5MCuKbIJ7hw/viewform?embedded=true" width="640" height="597" frameborder="0" marginheight="0" marginwidth="0">Cargando…</iframe>
                 </div>
             </div>
+
+                <div class="songs-list" id="songsList" style="margin-top: 3rem;">
+                    <h3 style="text-align: center; margin-bottom: 2rem; font-size: 1.8rem;">🎵 Canciones Sugeridas</h3>
+                    <div id="songsContainer">
+                        <div class="song-item">
+                            <div class="song-info">
+                                <h4>Cargando canciones...</h4>
+                                <p>Por favor espera</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -998,6 +1010,73 @@
                 .addTo(map)
                 .bindPopup(`<b>${hotel.name}</b><br>${hotel.info}<br><small>📍 ${hotel.distance} del lugar</small>`);
         });
+
+        // Cargar canciones desde Google Sheets
+        // IMPORTANTE: Reemplaza esta URL con la URL de tu Google Apps Script
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxYSZFXrDICPr6IzbHP3nrFhY-wWrB6Vi1BZGSGy865mWmS2b8pcgDkiKuKVHFY9wS9_w/exec';
+
+        function loadSongs() {
+            const songsContainer = document.getElementById('songsContainer');
+
+            // Si no has configurado la URL todavía, mostrar mensaje
+            if (GOOGLE_SCRIPT_URL === 'TU_URL_DE_GOOGLE_APPS_SCRIPT_AQUI') {
+                songsContainer.innerHTML = `
+                    <div class="song-item">
+                        <div class="song-info">
+                            <h4>⚙️ Configuración pendiente</h4>
+                            <p>Para ver las canciones sugeridas, sigue las instrucciones en el código</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            fetch(GOOGLE_SCRIPT_URL)
+                .then(response => response.json())
+                .then(songs => {
+                    if (songs.length === 0) {
+                        songsContainer.innerHTML = `
+                            <div class="song-item">
+                                <div class="song-info">
+                                    <h4>No hay canciones todavía</h4>
+                                    <p>¡Sé el primero en sugerir una canción!</p>
+                                </div>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    songsContainer.innerHTML = '';
+                    songs.reverse().forEach(song => {
+                        const songItem = document.createElement('div');
+                        songItem.className = 'song-item';
+                        songItem.innerHTML = `
+                            <div class="song-info">
+                                <h4>${song.song}</h4>
+                                <p>Sugerida por: ${song.name}</p>
+                            </div>
+                        `;
+                        songsContainer.appendChild(songItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error al cargar canciones:', error);
+                    songsContainer.innerHTML = `
+                        <div class="song-item">
+                            <div class="song-info">
+                                <h4>Error al cargar canciones</h4>
+                                <p>Por favor, intenta recargar la página</p>
+                            </div>
+                        </div>
+                    `;
+                });
+        }
+
+        // Cargar canciones al inicio
+        loadSongs();
+
+        // Recargar canciones cada 30 segundos para ver las nuevas
+        setInterval(loadSongs, 30000);
 
         // Music form handler
         const musicForm = document.getElementById('musicForm');
