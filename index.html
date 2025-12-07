@@ -991,46 +991,51 @@
         const hotels = [
             {
                 name: 'Hotel La Era',
-                coords: [40.1920, -3.8280],
+                coords: [40.1890, -3.8250],
                 distance: '1 km',
-                info: 'Casa rural en Cubas de la Sagra'
-            },
-            {
-                name: 'Eurostars Arenas de Pinto',
-                coords: [40.2394, -3.7086],
-                distance: '11 km',
-                info: 'Hotel moderno con parking'
-            },
-            {
-                name: 'Holiday Inn Express Madrid Leganés',
-                coords: [40.3272, -3.7634],
-                distance: '18 km',
-                info: 'Hotel con desayuno incluido'
-            },
-            {
-                name: 'B&B Hotel Madrid Fuenlabrada',
-                coords: [40.2843, -3.7941],
-                distance: '13 km',
-                info: 'Económico, cerca del metro'
-            },
-            {
-                name: 'Vértice Roomspace Madrid',
-                coords: [40.3506, -3.6980],
-                distance: '22 km',
-                info: 'En el centro de Madrid'
+                info: 'Casa rural en Cubas de la Sagra',
+                bookingUrl: 'https://www.booking.com/searchresults.es.html?ss=Cubas+de+la+Sagra&checkin=2026-07-24&checkout=2026-07-25'
             },
             {
                 name: 'Hotel Route 42',
-                coords: [40.2050, -3.8100],
+                coords: [40.1294, -3.8503],
                 distance: '3 km',
-                info: 'Cerca de Cubas con parking'
+                info: 'Illescas - WiFi gratis, restaurante',
+                bookingUrl: 'https://www.booking.com/searchresults.es.html?ss=Hotel+Route+42+Illescas&checkin=2026-07-24&checkout=2026-07-25'
+            },
+            {
+                name: 'Hotel Real Illescas',
+                coords: [40.1247, -3.8486],
+                distance: '8 km',
+                info: 'Illescas - Aire acondicionado, WiFi',
+                bookingUrl: 'https://www.booking.com/searchresults.es.html?ss=Hotel+Real+Illescas&checkin=2026-07-24&checkout=2026-07-25'
+            },
+            {
+                name: 'Hotel Fabrik',
+                coords: [40.2528, -3.8268],
+                distance: '8 km',
+                info: 'Humanes - Bar, recepción 24h',
+                bookingUrl: 'https://www.booking.com/searchresults.es.html?ss=Hotel+Fabrik+Humanes&checkin=2026-07-24&checkout=2026-07-25'
+            },
+            {
+                name: 'Hotel La Unión',
+                coords: [40.2537, -3.8284],
+                distance: '9 km',
+                info: 'Humanes - WiFi gratis, parking',
+                bookingUrl: 'https://www.booking.com/searchresults.es.html?ss=Hotel+La+Union+Humanes&checkin=2026-07-24&checkout=2026-07-25'
             }
         ];
 
         hotels.forEach(hotel => {
+            const popupContent = `
+                <b>${hotel.name}</b><br>
+                ${hotel.info}<br>
+                <small>📍 ${hotel.distance} del lugar</small><br>
+                <a href="${hotel.bookingUrl}" target="_blank" style="display: inline-block; margin-top: 8px; padding: 5px 10px; background: #d4af7a; color: white; text-decoration: none; border-radius: 3px; font-size: 12px;">Ver en Booking.com</a>
+            `;
             L.marker(hotel.coords, {icon: hotelIcon})
                 .addTo(map)
-                .bindPopup(`<b>${hotel.name}</b><br>${hotel.info}<br><small>📍 ${hotel.distance} del lugar</small>`);
+                .bindPopup(popupContent);
         });
 
         // Cargar canciones desde Google Sheets
@@ -1130,37 +1135,6 @@
                     loadSongs();
                 }, 3000);
             }
-        });
-
-        // Music form handler
-        const musicForm = document.getElementById('musicForm');
-        const songsList = document.getElementById('songsList');
-
-        musicForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const songName = document.getElementById('songName').value;
-            const guestName = document.getElementById('guestName').value;
-            
-            const songItem = document.createElement('div');
-            songItem.className = 'song-item';
-            songItem.innerHTML = `
-                <div class="song-info">
-                    <h4>${songName}</h4>
-                    <p>Sugerida por: ${guestName}</p>
-                </div>
-            `;
-            
-            songsList.insertBefore(songItem, songsList.firstChild);
-            
-            // Reset form
-            musicForm.reset();
-            
-            // Show success message (opcional)
-            alert('¡Canción añadida! Gracias por tu sugerencia 🎵');
-            
-            // Aquí podrías enviar los datos a una base de datos o Google Sheets
-            // usando Google Apps Script o una API
         });
 
         // Smooth scroll for navigation
