@@ -831,7 +831,7 @@
                 </div>
                 
                 <div class="booking-link">
-                    <a href="https://www.booking.com" target="_blank" class="booking-btn">
+                    <a href="https://www.booking.com/searchresults.es.html?latitude=40.1914&longitude=-3.8253&radius=30&checkin=2026-07-24&checkout=2026-07-25" target="_blank" class="booking-btn">
                         Ver Más Hoteles en Booking.com
                     </a>
                 </div>
@@ -1012,29 +1012,19 @@
         });
 
         // Cargar canciones desde Google Sheets
-        // IMPORTANTE: Reemplaza esta URL con la URL de tu Google Apps Script
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxYSZFXrDICPr6IzbHP3nrFhY-wWrB6Vi1BZGSGy865mWmS2b8pcgDkiKuKVHFY9wS9_w/exec';
+
+        let loadSongsCounter = 0;
 
         function loadSongs() {
             const songsContainer = document.getElementById('songsContainer');
+            loadSongsCounter++;
+            const callbackName = 'handleSongsData' + loadSongsCounter;
 
-            // Si no has configurado la URL todavía, mostrar mensaje
-            if (GOOGLE_SCRIPT_URL === 'TU_URL_DE_GOOGLE_APPS_SCRIPT_AQUI') {
-                songsContainer.innerHTML = `
-                    <div class="song-item">
-                        <div class="song-info">
-                            <h4>⚙️ Configuración pendiente</h4>
-                            <p>Para ver las canciones sugeridas, sigue las instrucciones en el código</p>
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-
-            fetch(GOOGLE_SCRIPT_URL)
-                .then(response => response.json())
-                .then(songs => {
-                    if (songs.length === 0) {
+            // Definir el callback global
+            window[callbackName] = function(songs) {
+                try {
+                    if (!songs || songs.length === 0) {
                         songsContainer.innerHTML = `
                             <div class="song-item">
                                 <div class="song-info">
@@ -1043,40 +1033,58 @@
                                 </div>
                             </div>
                         `;
-                        return;
+                    } else {
+                        songsContainer.innerHTML = '';
+                        songs.reverse().forEach(song => {
+                            const songItem = document.createElement('div');
+                            songItem.className = 'song-item';
+                            songItem.innerHTML = `
+                                <div class="song-info">
+                                    <h4>${song.song || 'Sin título'}</h4>
+                                    <p>Sugerida por: ${song.name || 'Anónimo'}</p>
+                                </div>
+                            `;
+                            songsContainer.appendChild(songItem);
+                        });
                     }
+                } catch (error) {
+                    console.error('Error procesando canciones:', error);
+                }
+            };
 
-                    songsContainer.innerHTML = '';
-                    songs.reverse().forEach(song => {
-                        const songItem = document.createElement('div');
-                        songItem.className = 'song-item';
-                        songItem.innerHTML = `
-                            <div class="song-info">
-                                <h4>${song.song}</h4>
-                                <p>Sugerida por: ${song.name}</p>
-                            </div>
-                        `;
-                        songsContainer.appendChild(songItem);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error al cargar canciones:', error);
-                    songsContainer.innerHTML = `
-                        <div class="song-item">
-                            <div class="song-info">
-                                <h4>Error al cargar canciones</h4>
-                                <p>Por favor, intenta recargar la página</p>
-                            </div>
+            // Crear y cargar el script
+            const script = document.createElement('script');
+            script.src = `${GOOGLE_SCRIPT_URL}?callback=${callbackName}&t=${Date.now()}`;
+            script.onerror = function() {
+                console.error('Error al cargar el script');
+                songsContainer.innerHTML = `
+                    <div class="song-item">
+                        <div class="song-info">
+                            <h4>Error al cargar canciones</h4>
+                            <p>Verifica que el script esté configurado correctamente</p>
                         </div>
-                    `;
-                });
+                    </div>
+                `;
+            };
+            document.body.appendChild(script);
+
+            // Limpiar script antiguo después de 10 segundos
+            setTimeout(() => {
+                try {
+                    if (script.parentNode) {
+                        document.body.removeChild(script);
+                    }
+                } catch (e) {
+                    console.log('Script ya eliminado');
+                }
+            }, 10000);
         }
 
-        // Cargar canciones al inicio
-        loadSongs();
+        // Cargar canciones al inicio con un pequeño delay
+        setTimeout(loadSongs, 1000);
 
-        // Recargar canciones cada 30 segundos para ver las nuevas
-        setInterval(loadSongs, 30000);
+        // Recargar canciones cada 60 segundos
+        setInterval(loadSongs, 60000);
 
         // Music form handler
         const musicForm = document.getElementById('musicForm');
