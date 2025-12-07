@@ -627,11 +627,33 @@
 
         .songs-list {
             margin-top: 3rem;
-            max-height: 400px;
-            overflow-y: auto;
             background: rgba(0, 0, 0, 0.2);
             padding: 2rem;
             border-radius: 10px;
+        }
+
+        #songsContainer {
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        #songsContainer::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #songsContainer::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        #songsContainer::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        #songsContainer::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
         }
 
         .song-item {
@@ -1035,9 +1057,13 @@
                         `;
                     } else {
                         songsContainer.innerHTML = '';
-                        songs.reverse().forEach(song => {
+                        // Ordenar de más reciente a menos reciente (reverse)
+                        const sortedSongs = songs.slice().reverse();
+
+                        sortedSongs.forEach((song, index) => {
                             const songItem = document.createElement('div');
                             songItem.className = 'song-item';
+                            songItem.style.animationDelay = `${index * 0.05}s`;
                             songItem.innerHTML = `
                                 <div class="song-info">
                                     <h4>${song.song || 'Sin título'}</h4>
@@ -1046,6 +1072,17 @@
                             `;
                             songsContainer.appendChild(songItem);
                         });
+
+                        // Mostrar contador de canciones
+                        const totalSongs = songs.length;
+                        if (totalSongs > 10) {
+                            const counterDiv = document.createElement('div');
+                            counterDiv.style.textAlign = 'center';
+                            counterDiv.style.marginTop = '1rem';
+                            counterDiv.style.opacity = '0.8';
+                            counterDiv.innerHTML = `<p>Mostrando ${totalSongs} canciones - Scroll para ver más</p>`;
+                            songsContainer.parentElement.appendChild(counterDiv);
+                        }
                     }
                 } catch (error) {
                     console.error('Error procesando canciones:', error);
@@ -1083,8 +1120,17 @@
         // Cargar canciones al inicio con un pequeño delay
         setTimeout(loadSongs, 1000);
 
-        // Recargar canciones cada 60 segundos
-        setInterval(loadSongs, 60000);
+        // Detectar cuando se envía el formulario de Google Forms de canciones
+        window.addEventListener('message', function(event) {
+            // Verificar si el mensaje viene de Google Forms
+            if (event.origin === 'https://docs.google.com') {
+                // Recargar canciones después de 3 segundos (tiempo para que se procese)
+                setTimeout(() => {
+                    console.log('Recargando canciones después de envío del formulario');
+                    loadSongs();
+                }, 3000);
+            }
+        });
 
         // Music form handler
         const musicForm = document.getElementById('musicForm');
