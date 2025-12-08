@@ -1035,24 +1035,12 @@
             <div class="upload-section fade-in">
                 <div class="upload-icon">📸</div>
                 <h3>Sube tus Fotos</h3>
-
-                <!-- Botón para tomar foto con la cámara -->
-                <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;">
-                <button onclick="document.getElementById('cameraInput').click()" style="display: inline-block; margin: 1rem 0.5rem; padding: 1.2rem 2rem; background: var(--primary); color: white; border: none; border-radius: 50px; font-size: 1.1rem; letter-spacing: 1px; cursor: pointer; transition: all 0.3s; box-shadow: 0 5px 25px rgba(212, 175, 122, 0.3);">
-                    📷 Tomar Foto
-                </button>
-
                 <a href="https://drive.google.com/drive/folders/1xM7hqMWeDcW0iuHcg2K6pqjj_Z5hp9Vj?usp=drive_link" target="_blank" class="drive-link">
-                    📤 Subir desde Galería
+                    📤 Subir Fotos a Google Drive
                 </a>
-
                 <p style="margin-top: 1.5rem; font-size: 0.9rem; opacity: 0.7;">
                     También puedes etiquetarnos en Instagram: <strong>@cristina.g90</strong>
                 </p>
-
-                <div id="uploadStatus" style="margin-top: 1rem; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 10px; display: none;">
-                    <p id="statusMessage" style="margin: 0; color: white;"></p>
-                </div>
             </div>
         </div>
     </section>
@@ -1295,61 +1283,6 @@
                     loadSongs();
                 }, 3000);
             }
-        });
-
-        // Subir foto a Google Drive
-        const DRIVE_UPLOAD_URL = 'TU_URL_DE_GOOGLE_APPS_SCRIPT_AQUI';
-
-        document.getElementById('cameraInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const statusDiv = document.getElementById('uploadStatus');
-            const statusMsg = document.getElementById('statusMessage');
-
-            statusDiv.style.display = 'block';
-            statusMsg.textContent = '📤 Subiendo foto...';
-
-            // Usar Google Drive directamente (requiere configuración previa)
-            // Por ahora, mostrar instrucciones
-            if (DRIVE_UPLOAD_URL === 'TU_URL_DE_GOOGLE_APPS_SCRIPT_AQUI') {
-                statusMsg.innerHTML = '⚠️ Para activar la subida automática, necesitas configurar Google Apps Script.<br><small>Por ahora, usa el botón "Subir desde Galería"</small>';
-                setTimeout(() => {
-                    window.open('https://drive.google.com/drive/folders/1xM7hqMWeDcW0iuHcg2K6pqjj_Z5hp9Vj', '_blank');
-                }, 2000);
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const base64Data = event.target.result.split(',')[1];
-
-                fetch(DRIVE_UPLOAD_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        filename: file.name,
-                        data: base64Data,
-                        mimeType: file.type
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        statusMsg.textContent = '✅ ¡Foto subida con éxito!';
-                        setTimeout(() => {
-                            statusDiv.style.display = 'none';
-                        }, 3000);
-                    } else {
-                        statusMsg.textContent = '❌ Error al subir. Intenta de nuevo.';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    statusMsg.textContent = '❌ Error de conexión. Intenta de nuevo.';
-                });
-            };
-
-            reader.readAsDataURL(file);
         });
 
         // Smooth scroll for navigation
