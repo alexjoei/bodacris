@@ -523,6 +523,122 @@
             box-shadow: 0 8px 30px rgba(212, 175, 122, 0.4);
         }
 
+        /* Photo Upload */
+        .photo-cta {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--light) 100%);
+            padding: 4rem 0;
+        }
+
+        .photo-cta-card {
+            max-width: 720px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            text-align: center;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.08);
+            border: 2px dashed var(--primary);
+        }
+
+        .photo-cta-icon {
+            font-size: 3.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .photo-cta-card h2 {
+            font-size: 2.2rem;
+            color: var(--secondary);
+            margin-bottom: 0.8rem;
+        }
+
+        .photo-cta-card p {
+            color: var(--secondary);
+            opacity: 0.8;
+            line-height: 1.7;
+            max-width: 480px;
+            margin: 0 auto 2rem;
+        }
+
+        .photo-btns {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .photo-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1.1rem 2rem;
+            border: none;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.05rem;
+            letter-spacing: 0.5px;
+            border-radius: 50px;
+            background: var(--primary);
+            color: white;
+            transition: all 0.3s;
+            box-shadow: 0 5px 25px rgba(212, 175, 122, 0.35);
+        }
+
+        .photo-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .photo-btn:disabled {
+            opacity: 0.6;
+            cursor: default;
+            transform: none;
+        }
+
+        .photo-btn.secondary {
+            background: var(--secondary);
+            box-shadow: 0 5px 25px rgba(45, 62, 78, 0.3);
+        }
+
+        .photo-btn.secondary:hover {
+            background: #22303c;
+        }
+
+        .photo-hint {
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+            opacity: 0.6;
+        }
+
+        /* Upload toast (feedback flotante) */
+        .upload-toast {
+            position: fixed;
+            left: 50%;
+            bottom: 2rem;
+            transform: translateX(-50%) translateY(200%);
+            background: var(--secondary);
+            color: white;
+            padding: 1rem 1.6rem;
+            border-radius: 50px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+            font-size: 1rem;
+            z-index: 2000;
+            transition: transform 0.4s ease;
+            max-width: 90vw;
+            text-align: center;
+        }
+
+        .upload-toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .upload-toast.success {
+            background: #3a7d44;
+        }
+
+        .upload-toast.error {
+            background: #b5473f;
+        }
+
         /* Music Section */
         .music {
             background: linear-gradient(135deg, var(--secondary) 0%, #1a2530 100%);
@@ -914,6 +1030,22 @@
         <div class="scroll-indicator"></div>
     </section>
 
+    <!-- Photo Upload CTA (justo al comienzo) -->
+    <section id="subir-fotos" class="photo-cta">
+        <div class="container">
+            <div class="photo-cta-card fade-in">
+                <div class="photo-cta-icon">📸</div>
+                <h2>Comparte tus fotos</h2>
+                <p>Ayúdanos a recopilar todos los momentos de la boda. Se guardan automáticamente para Cristina y Alberto, sin registrarte.</p>
+                <div class="photo-btns">
+                    <button type="button" class="photo-btn js-camera">📷 Hacer una foto</button>
+                    <button type="button" class="photo-btn secondary js-gallery">🖼️ Subir fotos</button>
+                </div>
+                <p class="photo-hint">Puedes subir varias a la vez</p>
+            </div>
+        </div>
+    </section>
+
     <!-- Invitation Section -->
     <section id="invitacion" class="invitation">
         <div class="container">
@@ -1035,10 +1167,14 @@
             <div class="upload-section fade-in">
                 <div class="upload-icon">📸</div>
                 <h3>Sube tus Fotos</h3>
-                <a href="https://drive.google.com/drive/folders/1xM7hqMWeDcW0iuHcg2K6pqjj_Z5hp9Vj?usp=drive_link" target="_blank" class="drive-link">
-                    📤 Subir Fotos a Google Drive
-                </a>
+                <div class="photo-btns" style="margin-top: 2rem;">
+                    <button type="button" class="photo-btn js-camera">📷 Hacer una foto</button>
+                    <button type="button" class="photo-btn secondary js-gallery">🖼️ Subir fotos</button>
+                </div>
                 <p style="margin-top: 1.5rem; font-size: 0.9rem; opacity: 0.7;">
+                    ¿Prefieres verlas todas? <a href="https://drive.google.com/drive/folders/1xM7hqMWeDcW0iuHcg2K6pqjj_Z5hp9Vj?usp=drive_link" target="_blank" style="color: var(--primary-dark); font-weight: 500;">Abrir el álbum en Drive</a>
+                </p>
+                <p style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.7;">
                     También puedes etiquetarnos en Instagram: <strong>@cristina.g90</strong>
                 </p>
             </div>
@@ -1086,6 +1222,11 @@
             ¡Nos vemos pronto!
         </p>
     </footer>
+
+    <!-- Inputs ocultos para cámara y galería (compartidos por todos los botones) -->
+    <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
+    <input type="file" id="galleryInput" accept="image/*" multiple hidden>
+    <div class="upload-toast" id="uploadToast"></div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
@@ -1284,6 +1425,119 @@
                 }, 3000);
             }
         });
+
+        // ============================================================
+        //  SUBIDA DE FOTOS A GOOGLE DRIVE (vía Apps Script)
+        // ============================================================
+        // 1. Pega aquí la URL del despliegue del Apps Script (termina en /exec)
+        const PHOTO_UPLOAD_URL = 'https://script.google.com/macros/s/AKfycbwvHtwARl2ynwUVwJ0OA8flF9-MZsXfkZQ9T0NpzjmZkHC6rr7AP8Gwe69rP_BxXIkG/exec';
+
+        const cameraInput = document.getElementById('cameraInput');
+        const galleryInput = document.getElementById('galleryInput');
+        const uploadToast = document.getElementById('uploadToast');
+        let toastTimer = null;
+
+        function showToast(message, type = '', autoHide = false) {
+            uploadToast.textContent = message;
+            uploadToast.className = 'upload-toast show' + (type ? ' ' + type : '');
+            clearTimeout(toastTimer);
+            if (autoHide) {
+                toastTimer = setTimeout(() => {
+                    uploadToast.className = 'upload-toast';
+                }, 5000);
+            }
+        }
+
+        // Comprime la imagen en el navegador antes de subirla
+        async function compressImage(file, maxDim = 1920, quality = 0.85) {
+            if (!file.type || !file.type.startsWith('image/')) return file;
+            try {
+                const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+                let { width, height } = bitmap;
+                const scale = Math.min(1, maxDim / Math.max(width, height));
+                width = Math.round(width * scale);
+                height = Math.round(height * scale);
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                canvas.getContext('2d').drawImage(bitmap, 0, 0, width, height);
+                if (bitmap.close) bitmap.close();
+                const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', quality));
+                return blob || file;
+            } catch (e) {
+                return file; // Si algo falla, subimos el original
+            }
+        }
+
+        function toBase64(blob) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(String(reader.result).split(',')[1]);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        }
+
+        async function uploadOne(blob, originalName) {
+            const data = await toBase64(blob);
+            const rand = Math.random().toString(36).slice(2, 8);
+            const payload = {
+                filename: `boda_${Date.now()}_${rand}.jpg`,
+                mimeType: blob.type || 'image/jpeg',
+                data: data
+            };
+            // Content-Type text/plain -> evita el preflight CORS con Apps Script
+            const res = await fetch(PHOTO_UPLOAD_URL, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+            const json = await res.json();
+            if (!json || !json.ok) throw new Error((json && json.error) || 'error');
+            return json;
+        }
+
+        async function handleFiles(fileList) {
+            const files = Array.from(fileList || []).filter(f => f.type.startsWith('image/'));
+            if (!files.length) return;
+
+            if (PHOTO_UPLOAD_URL === 'PEGA_AQUI_LA_URL_DEL_APPS_SCRIPT') {
+                showToast('⚠️ Subida aún no configurada', 'error', true);
+                return;
+            }
+
+            const buttons = document.querySelectorAll('.js-camera, .js-gallery');
+            buttons.forEach(b => (b.disabled = true));
+
+            let done = 0, failed = 0;
+            for (const file of files) {
+                showToast(`Subiendo ${done + failed + 1} de ${files.length}…`);
+                try {
+                    const blob = await compressImage(file);
+                    await uploadOne(blob, file.name);
+                    done++;
+                } catch (e) {
+                    failed++;
+                }
+            }
+
+            buttons.forEach(b => (b.disabled = false));
+
+            if (failed === 0) {
+                showToast(`✅ ¡Gracias! ${done} ${done === 1 ? 'foto subida' : 'fotos subidas'}`, 'success', true);
+            } else if (done === 0) {
+                showToast('❌ No se pudo subir. Revisa tu conexión e inténtalo de nuevo', 'error', true);
+            } else {
+                showToast(`Subidas ${done}, fallaron ${failed}. Prueba de nuevo con las que faltan`, 'error', true);
+            }
+        }
+
+        cameraInput.addEventListener('change', e => { handleFiles(e.target.files); e.target.value = ''; });
+        galleryInput.addEventListener('change', e => { handleFiles(e.target.files); e.target.value = ''; });
+
+        document.querySelectorAll('.js-camera').forEach(btn =>
+            btn.addEventListener('click', () => cameraInput.click()));
+        document.querySelectorAll('.js-gallery').forEach(btn =>
+            btn.addEventListener('click', () => galleryInput.click()));
 
         // Smooth scroll for navigation
         document.querySelectorAll('nav a').forEach(anchor => {
