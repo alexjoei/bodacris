@@ -524,39 +524,8 @@
         }
 
         /* Photo Upload */
-        .photo-cta {
-            background: linear-gradient(135deg, var(--accent) 0%, var(--light) 100%);
-            padding: 4rem 0;
-        }
-
-        .photo-cta-card {
-            max-width: 720px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            padding: 3rem 2rem;
-            text-align: center;
-            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.08);
-            border: 2px dashed var(--primary);
-        }
-
-        .photo-cta-icon {
-            font-size: 3.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .photo-cta-card h2 {
-            font-size: 2.2rem;
-            color: var(--secondary);
-            margin-bottom: 0.8rem;
-        }
-
-        .photo-cta-card p {
-            color: var(--secondary);
-            opacity: 0.8;
-            line-height: 1.7;
-            max-width: 480px;
-            margin: 0 auto 2rem;
+        .hero-photos {
+            margin-top: 2.5rem;
         }
 
         .photo-btns {
@@ -601,6 +570,19 @@
 
         .photo-btn.secondary:hover {
             background: #22303c;
+        }
+
+        .photo-btn.outline {
+            background: transparent;
+            color: var(--secondary);
+            border: 2px solid var(--primary);
+            box-shadow: none;
+            text-decoration: none;
+        }
+
+        .photo-btn.outline:hover {
+            background: var(--primary);
+            color: white;
         }
 
         .photo-hint {
@@ -1026,24 +1008,17 @@
             </h1>
             <p class="hero-date">24 DE JULIO, 2026</p>
             <p class="hero-location">Nos casamos y queremos celebrarlo contigo</p>
-        </div>
-        <div class="scroll-indicator"></div>
-    </section>
 
-    <!-- Photo Upload CTA (justo al comienzo) -->
-    <section id="subir-fotos" class="photo-cta">
-        <div class="container">
-            <div class="photo-cta-card fade-in">
-                <div class="photo-cta-icon">📸</div>
-                <h2>Comparte tus fotos</h2>
-                <p>Ayúdanos a recopilar todos los momentos de la boda. Se guardan automáticamente para Cristina y Alberto, sin registrarte.</p>
+            <div class="hero-photos" id="subir-fotos">
                 <div class="photo-btns">
                     <button type="button" class="photo-btn js-camera">📷 Hacer una foto</button>
                     <button type="button" class="photo-btn secondary js-gallery">🖼️ Subir fotos</button>
+                    <a href="https://drive.google.com/drive/folders/1xM7hqMWeDcW0iuHcg2K6pqjj_Z5hp9Vj?usp=drive_link" target="_blank" rel="noopener" class="photo-btn outline">🖼️ Ver fotos</a>
                 </div>
-                <p class="photo-hint">Puedes subir varias a la vez</p>
+                <p class="photo-hint">Comparte tus fotos de la boda · sin registrarte, se guardan solas</p>
             </div>
         </div>
+        <div class="scroll-indicator"></div>
     </section>
 
     <!-- Invitation Section -->
